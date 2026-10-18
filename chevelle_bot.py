@@ -1,9 +1,11 @@
 import os
+import asyncio
 from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters, ContextTypes
 from PIL import Image, ImageEnhance, ImageOps
+from aiohttp import web
 
-BOT_TOKEN = "8967312774:AAGw3REjmW-BJRHs1RIjNOkim_tf87wCIMA"
+BOT_TOKEN = "8967312774:AAGw3REjmW-BJRHsiRIjNOkim_tf87wCIMA"
 
 def process_for_instagram(input_path, output_path):
     with Image.open(input_path) as img:
@@ -72,10 +74,32 @@ async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if os.path.exists(processed_path):
         os.remove(processed_path)
 
-if __name__ == "__main__":
-    app = ApplicationBuilder().token(BOT_TOKEN).build()
-    app.add_handler(CommandHandler("start", start))
-    app.add_handler(MessageHandler(filters.PHOTO, handle_photo))
+async def run_dummy_server():
+    """Render-ისთვის საჭირო პატარა ვებ-სერვერი, რომ სერვისი არ გაითიშოს"""
+    async def hello(request):
+        return web.Response(text="Bot is running!")
+
+    app = web.Application()
+    app.router.add_get("/", hello)
+    port = int(os.environ.get("PORT", 8080))
+    runner = web.AppRunner(app)
+    await runner.setup()
+    site = web.TCPSite(runner, "0.0.0.0", port)
+    await site.start()
+
+async def main():
+    await run_dummy_server()
+    
+    tg_app = ApplicationBuilder().token(BOT_TOKEN).build()
+    tg_app.add_handler(CommandHandler("start", start))
+    tg_app.add_handler(MessageHandler(filters.PHOTO, handle_photo))
     
     print("Chevelle Bot გაშვებულია...")
-    app.run_polling()
+    async with tg_app:
+        await tg_app.start()
+        await tg_app.updater.start_polling()
+        while True:
+            await asyncio.sleep(3600)
+
+if __name__ == "__main__":
+    asyncio.run(main())
