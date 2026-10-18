@@ -5,7 +5,7 @@ from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, fil
 from PIL import Image, ImageEnhance, ImageOps
 from aiohttp import web
 
-BOT_TOKEN = "8967312774:AAGw3REjmW-BJRHsiRIjNOkim_tf87wCIMA"
+BOT_TOKEN = os.environ.get("BOT_TOKEN")
 
 def process_for_instagram(input_path, output_path):
     with Image.open(input_path) as img:
