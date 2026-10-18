@@ -3,7 +3,7 @@ from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters, ContextTypes
 from PIL import Image, ImageEnhance, ImageOps
 
-BOT_TOKEN "8967312774:AAGw3REjmW-BJRHs1RIjNOkim_tf87wCIMA"
+BOT_TOKEN = "8967312774:AAGw3REjmW-BJRHs1RIjNOkim_tf87wCIMA"
 
 def process_for_instagram(input_path, output_path):
     with Image.open(input_path) as img:
